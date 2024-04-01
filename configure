@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+#############################################################################
+# This is a Chisel RTL generator configuration script file. 
+# The purpose is to control the compilation and testing
+# in parametrized manner from this single file
+# Created by Marko Kosunen on 24.03.2015
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 11.12.2018 20:27
+#############################################################################
+##Function to display help with -h argument and to control 
+##The configuration from the commnad line
+help_f()
+{
+    echo -e "CONFIGURE Release 1.0 (04.04.2016)"
+    echo -e "configure-configuration script for Chisel RTL generation"
+    echo -e "Written by Marko "Pikkis" Kosunen"
+    echo -e -n "\n"
+    echo -e "SYNOPSIS"
+    echo -e "  configure [OPTIONS] "
+    echo -e "DESCRIPTION"
+    echo -e "  Producess all configurations and Makefile for the Chisel RTL generation"
+    echo -e -n "\n"
+    echo -e "OPTIONS"
+    echo -e "  -h"
+    echo -e "      Show this help."
+}
+
+while getopts h opt
+do
+  case "$opt" in
+    h) help_f; exit 0;;
+    \?) help_f;;
+  esac
+done
+
+
+#$FIRRTL #Sets up THESDKHOME from gloabl setup file
+#. ../../TheSDK.config
+ROOTPATH=`pwd`
+VERILOGDIR=verilog
+VERILOGPATH=${ROOTPATH}/${VERILOGDIR}
+SCALAPATH=${ROOTPATH}/src/main/scala
+FIRRTL_JAR="$ROOTPATH/rocket-chip/firrtl/utils/bin/firrtl.jar"
+
+VPATHDIRS=`find ${SCALAPATH}/* -type d -exec basename '{}' ';'`
+MAINMODULES="TestAsyncQueue"
+MODULES=""
+TEST_MODULES=""
+PACKAGE="asyncqueue.modules"
+
+############################# MAKEFILE   ####################################
+CURRENTFILE="${ROOTPATH}/Makefile"
+echo "Creating ${CURRENTFILE} for modules:"
+for i in ${MAINMODULES}; do
+    echo "- $i"
+done
+for i in ${MODULES}; do
+    echo "- $i"
+done
+cat <<EOF > ${CURRENTFILE}
+#Directories
+VERILOGDIR ?= ${VERILOGDIR}
+VERILOGPATH = ${VERILOGPATH}
+SCALAPATH = ${SCALAPATH}
+#DEPDIR :=.depdir
+#\$(shell mkdir -p \$(DEPDIR) >/dev/null)
+\$(shell mkdir -p \$(VERILOGPATH) >/dev/null)
+MODULES= ${MODULES}
+TEST_MODULES=${TEST_MODULES}
+PACKAGE=${PACKAGE}
+
+TARGETS = \$(foreach name,\$(MODULES), \$(VERILOGDIR)/\$(name).v)
+TEST_TARGETS = \$(foreach name,\$(TEST_MODULES), test_\$(name))
+
+#Commands
+SBT=sbt -J-Xmx16G -J-Xss8M
+
+
+TOUCH=touch -r
+`for i in ${VPATHDIRS}; do
+    echo vpath %.scala \\$\(SCALAPATH\)/$i
+done`
+.PHONY: all test help doc clean
+
+all: \$(TARGETS)
+
+# Test all in TEST_TARGETS
+test: \
+`
+echo ""
+echo -en "\t\\$(SBT) 'testOnly"
+for i in ${TEST_MODULES}; do
+    echo -n " ${PACKAGE}.$i"
+done
+echo "'"
+`
+
+# Recipes for modules that have CLI
+`for i in ${MAINMODULES}; do
+	echo -e "$i: \\$(VERILOGDIR)/$i.v"
+	echo -e "\\$(VERILOGDIR)/$i.v:"
+	echo -e "\t\\$(SBT) 'runMain ${PACKAGE}.$i \\$(MAINPARAMS) -td \\$(VERILOGDIR)'"
+done`
+
+# Recipes for individual modules
+`for i in ${MODULES}; do
+	echo -e "$i: \\$(VERILOGDIR)/$i.v"
+	echo -e "\\$(VERILOGDIR)/$i.v:"
+	echo -e "\t\\$(SBT) 'runMain ${PACKAGE}.$i -td \\$(VERILOGDIR)'"
+done`
+
+# Test recipes for all test modules
+`for i in ${TEST_MODULES}; do
+	echo ".PHONY: test_$i"
+    echo "test_$i:"
+	echo -e "\t\\$(SBT) 'testOnly ${PACKAGE}.$i'"
+done`
+
+
+clean:
+	rm -f \$(VERILOGPATH)/*.v
+	rm -f \$(VERILOGPATH)/*.anno
+	rm -f \$(VERILOGPATH)/*.fir
+	rm -rf \$(VERILOGPATH)
+	#rm -rf \$(DEPDIR)
+
+# Generate cleanup recipes for individual modules
+`for i in ${MODULES}; do
+	echo .PHONY: clean_$i
+	echo clean_$i: 
+	echo -e "\trm -f \\$(VERILOGPATH)/$i.v"
+	echo -e "\trm -f \\$(VERILOGPATH)/$i.anno"
+	echo -e "\trm -f \\$(VERILOGPATH)/$i.fir"
+    echo -e "\trm -f \\$(VERILOGPATH)/${i}_memmapped.conf"
+    echo -e "\trm -f \\$(VERILOGPATH)/${i}_memmapped.v"
+done`
+
+help:
+	@echo "configured modules are:";
+	@for i in \$(MODULES) ; do \\
+	   echo \$\$i; \\
+	done
+	@echo "\ntestable modules are:";
+	@for i in \$(TEST_MODULES) ; do \\
+	   echo \$\$i; \\
+	done
+
+
+doc:
+	sbt doc
+EOF
+##################Hereafter some files you should not need to modify ################################
