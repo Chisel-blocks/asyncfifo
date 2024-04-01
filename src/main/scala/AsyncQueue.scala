@@ -4,6 +4,8 @@ package asyncqueue.modules
 
 import chisel3._
 import chisel3.util._
+import chisel3.stage.{ChiselStage}
+import chisel3.stage.ChiselGeneratorAnnotation
 
 case class AsyncQueueParams(
   depth:  Int     = 8,
@@ -227,4 +229,24 @@ class AsyncQueue[T <: Data](gen: T, params: AsyncQueueParams = AsyncQueueParams(
   source.io.enq <> io.enq
   io.deq <> sink.io.deq
   sink.io.async <> source.io.async
+}
+
+object TestAsyncQueue extends App {
+  // Generate verilog
+  (new ChiselStage).execute(
+    args,
+    Seq(
+      ChiselGeneratorAnnotation(() => {
+        new AsyncQueue(
+          UInt(32.W),
+          AsyncQueueParams(
+            depth = 8,
+            sync = 3,
+            safe = true,
+            narrow = false
+          )
+        )
+      }),
+    )
+  )
 }
