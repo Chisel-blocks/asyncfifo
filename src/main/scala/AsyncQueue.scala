@@ -1,6 +1,6 @@
 // See LICENSE.SiFive for license details.
 
-package asyncqueue
+package asyncqueue.modules
 
 import chisel3._
 import chisel3.util._
