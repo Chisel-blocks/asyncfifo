@@ -12,6 +12,16 @@ from cocotb.triggers import ClockCycles, with_timeout, RisingEdge
 # pip install cocotbext-axi
 from cocotbext.axi import AxiLiteBus, AxiLiteRam, AxiLiteMaster
 
+async def read_outputs(dut):
+    for i in range(0, 100):
+        while True:
+            await RisingEdge(dut.io_deq_clock)
+            if (dut.io_deq_valid.value):
+                bits = dut.io_deq_bits.value
+                assert bits == i, f"Dequeued bits should have been {i}, was {bits}"
+                break
+            
+
 @cocotb.test()
 async def test_asyncfifo(dut):
     """
@@ -29,8 +39,9 @@ async def test_asyncfifo(dut):
     dut.io_enq_bits.value = 0
     dut.io_deq_ready.value = 1
 
-    cocotb.start_soon(Clock(source_clock, 10, units="step").start())
-    cocotb.start_soon(Clock(sink_clock, 6, units="step").start())
+    cocotb.start_soon(Clock(source_clock, 6, units="step").start())
+    cocotb.start_soon(Clock(sink_clock, 10, units="step").start())
+    cocotb.start_soon(read_outputs(dut))
 
     await RisingEdge(source_clock)
     source_reset.value = 1

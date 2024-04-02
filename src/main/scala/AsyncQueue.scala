@@ -242,7 +242,7 @@ object TestAsyncQueue extends App {
           AsyncQueueParams(
             depth = 8,
             sync = 3,
-            safe = true,
+            safe = false,
             narrow = false
           )
         )

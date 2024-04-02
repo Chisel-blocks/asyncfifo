@@ -10,3 +10,10 @@ TOPLEVEL := AsyncQueue
 MODULE   := test_asyncfifo
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
+
+%.v: clean_vlog
+	cd $(PWD)/../../.. && ./configure && $(MAKE) TestAsyncQueue
+
+clean_vlog:
+	rm -f $(VERILOG_SOURCES)
+
