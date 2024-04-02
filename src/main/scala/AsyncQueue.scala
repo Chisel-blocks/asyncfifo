@@ -1,5 +1,9 @@
 // See LICENSE.SiFive for license details.
 
+// Modified by Aleksi Korsman (aleksi.korsman@aalto.fi), 2024-04-02
+// - Added TestAsyncQueue object
+// Copyright 2024 Aalto University
+
 package asyncqueue.modules
 
 import chisel3._
