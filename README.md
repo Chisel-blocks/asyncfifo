@@ -1,5 +1,5 @@
 # Asynchronous FIFO
-This repo contains an asynchronous FIFO that is used in the rocket-chip project. Original source code can be found here: https://github.com/chipsalliance/rocket-chip/blob/master/src/main/scala/util/AsyncQueue.scala .
+This repo contains an asynchronous FIFO. Source code has been modified from rocket-chip project. Original source code can be found here: https://github.com/chipsalliance/rocket-chip/blob/master/src/main/scala/util/AsyncQueue.scala .
 ## Usage
 Instantiate it in your code like this:
 ```scala
