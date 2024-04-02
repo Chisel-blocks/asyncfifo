@@ -21,13 +21,13 @@ There are five parameters:
 ## IOs
 - `io.enq_clock` - input, clock signal, source side
 - `io.enq_reset` - input, asynchronous reset, source side
-- `io.enq` - bundle, data, source side (contains subfields `.bits` and `.valid`)
+- `io.enq` - bundle, data, source side
   - `.bits` - input, data
   - `.valid` - input, data is valid
   - `.ready` - output, source is ready to accept data
 - `io.deq_clock` - input, clock signal, sink side
 - `io.deq_reset` - input, asynchronous reset, sink side
-- `io.deq` - bundle, data, sink side (contains subfields `.bits` and `.valid`)
+- `io.deq` - bundle, data, sink side
   - `.bits` - output, data
   - `.valid` - output, data is valid
   - `.ready` - input, sink is ready to accept data
