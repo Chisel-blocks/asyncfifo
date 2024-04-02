@@ -31,6 +31,11 @@ There are five parameters:
   - `.bits` - output, data
   - `.valid` - output, data is valid
   - `.ready` - input, sink is ready to accept data
+## Generate Verilog
+```
+./configure && make TestAsyncQueue
+```
+Generates verilog under `verilog/` folder. The parameters are `T = UInt(32.W)`, `depth = 8`, `sync = 3`, `safe = false`, `narrow = false`. The parameters can be changed by modifying them in the class instantiation located in `AsyncQueue.scala` (find an object called `TestAsyncQueue`).
 ## Test
 A test in `src/main/test/cocotb` instantiates two different clocks for the async FIFO. Then, it generates data values from 0 to 99, sends them to the FIFO, and monitors the outputs.
 
