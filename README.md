@@ -4,7 +4,7 @@ This repo contains an asynchronous FIFO. Source code has been modified from rock
 Instantiate it in your code like this:
 ```scala
 import asyncqueue.modules._
-val fifoparams = AsyncQueueParams(
+val fifoParams = AsyncQueueParams(
     depth = 8,
     sync = 3,
     safe = false,
