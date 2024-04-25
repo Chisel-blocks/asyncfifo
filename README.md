@@ -3,13 +3,14 @@ This repo contains an asynchronous FIFO. Source code has been modified from rock
 ## Usage
 Instantiate it in your code like this:
 ```scala
+import asyncqueue.modules._
 val fifoparams = AsyncQueueParams(
     depth = 8,
     sync = 3,
     safe = false,
     narrow = false
 )
-val asyncfifo = Module(new AsynqQueue(UInt(32.W), fifoParams))
+val asyncfifo = Module(new AsyncQueue(UInt(32.W), fifoParams))
 ```
 ## Parameters
 There are five parameters:
